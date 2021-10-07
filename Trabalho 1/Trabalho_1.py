@@ -9,6 +9,8 @@ import OpenGL.GL.shaders
 import numpy as np
 import math
 
+#Variáveis Globais
+scale = 0.01
 TAM = 0.1
 TAM3 = 0.05
 t_x =  0.0
@@ -19,7 +21,7 @@ s =  1.0
 angle = 0.0
 angle2 = 0.0
 
-
+#Função que multiplica duas matrizes
 def multiplica_matriz(a,b):
     m_a = a.reshape(4,4)
     m_b = b.reshape(4,4)
@@ -27,21 +29,21 @@ def multiplica_matriz(a,b):
     c = m_c.reshape(1,16)
     return c
 
+#Key Event
 def key_event(window,key,scancode,action,mods):
     global p_x, p_y, s, angle2
-    # Primeira figura
-    if (key == 68 and p_x <  0.85): p_x += 0.01 # tecla D
-    if(key == 65 and p_x > -0.85): p_x -= 0.01 # tecla A
 
-    if(key == 87 and p_y <  0.62): p_y += 0.01 # tecla W
-    if(key == 83 and p_y > -0.75): p_y -= 0.01 # tecla S
+    if (key == 68 and p_x <  0.7): p_x += 0.01 # D
+    if(key == 65 and p_x > -0.7): p_x -= 0.01 # A
 
-    if(key == 265 and s < 2.0): s += 0.01 # seta para cima
-    if(key == 264 and s > 0.5): s -= 0.01 # seta para baixo   
+    if(key == 87 and p_y <  0.5): p_y += 0.01 # W
+    if(key == 83 and p_y > -0.2): p_y -= 0.01 # S
 
-    # Segunda figura
-    if(key == 262): angle2 += 0.01 # seta da direita
-    if(key == 263): angle2 -= 0.01 # seta da esquerda
+    if(key == 265 and s < 2.0): s += 0.01 # UP arrow
+    if(key == 264 and s > 0.5): s -= 0.01 # Down arrow  
+
+    if(key == 262): angle2 += 0.02 # Right arrow
+    if(key == 263): angle2 -= 0.02 # Left arrow
 
 
 # Entrada: angulo de longitude, latitude, raio
@@ -52,7 +54,9 @@ def F(u,v,r):
     z = r*math.cos(v)
     return (x,y,z)
 
-def drawFirstObject(vertices):
+#Vértices para a estrela
+#Entrada: Vetor de vértices
+def drawStar(vertices):
     vertices['position'][0] = [0.0, 0.0]
 
     step = np.pi/8
@@ -68,10 +72,13 @@ def drawFirstObject(vertices):
     
     vertices['position'][17] = vertices['position'][1]
 
-def drawSecondObject(vertices):
+#Vértices para a Flor 1
+#Entrada: Vetor de vértices
+def drawFlower1(vertices):
     step = np.pi/6
     ang = 0.0
 
+    #Pétalas
     for i in range(18,66,4):
         smallstep = step/7
 
@@ -85,6 +92,7 @@ def drawSecondObject(vertices):
 
         ang += step
 
+    #Cabo
     vertices['position'][66] = [0.002,0.0]
 
     vertices['position'][67] = [-0.002,0.0]
@@ -93,24 +101,80 @@ def drawSecondObject(vertices):
     
     vertices['position'][69] = [+0.002,-0.3]
 
-def drawThirdObject(vertices):
-    third = np.zeros(9, [("position", np.float32, 2)])
-    third["position"] = [
-        ( 0.0, 0.0),
-        ( 1.0, 3.0),
-        ( 0.0, 1.0),
-        (-1.0, 3.0),
-        ( 2.0, 0.0),
-        ( 1.0, 1.0),
-        (-1.0, 1.0),
-        (-2.0, 0.0),
-        ( 2.0, 0.0)
-    ]
+#Vértices para a Flor 2
+#Entrada: Vetor de vértices
+def drawFlower2(vertices):
+    step = np.pi/4
+    ang = 0.0
+
+    #Pétalas
+    for i in range(70,118,4):
+        smallstep = step/7
+
+        vertices['position'][i] = [0.0,0.0]
+
+        vertices['position'][i+1] = [-0.7 * TAM * np.cos(ang + 2 * smallstep),0.7 * TAM * np.sin(ang + 2 * smallstep)]
+
+        vertices['position'][i+2] = [-1.0 * TAM * np.cos(ang + 4 * smallstep),1.0 * TAM * np.sin(ang + 4 * smallstep)]
+
+        vertices['position'][i+3] = [-0.7 * TAM * np.cos(ang + 6 * smallstep),0.7 * TAM * np.sin(ang + 6 * smallstep)]    
+
+        ang += step
+
+    #Cabo
+    vertices['position'][118] = [-0.002,0.0]
+
+    vertices['position'][119] = [0.002,0.0]
+
+    vertices['position'][120] = [0.002,-0.3]
     
-    for i in range(len(third)):
-        vertices['position'][i + 70] = TAM3 * third["position"][i][0], TAM3 * third["position"][i][1]
+    vertices['position'][121] = [-0.002,-0.3]
 
+#Vértices para o Homem
+#Entrada: Vetor de vértices
+def drawMan(vertices):
+    ang = 0
+    radius = 0.2
+    ax_move = -0.0
+    ay_move = 0.0
 
+    #Corpo
+    vertices['position'][122] = [0.0,0.0]
+    vertices['position'][123] = [0.0,-0.2]
+    vertices['position'][124] = [0.2,-0.4]
+    vertices['position'][125] = [0.0,-0.2]
+    vertices['position'][126] = [-0.2,-0.4]
+    vertices['position'][127] = [0.0,-0.2]
+    vertices['position'][128] = [0.0,-0.5]
+    vertices['position'][129] = [-0.1,-0.7]
+    vertices['position'][130] = [0.0,-0.5]
+    vertices['position'][131] = [0.1,-0.7]
+    vertices['position'][133] = [0.0,-0.5]
+    
+    #Cabeça
+    vertices['position'][133] = [0.0,0.0]
+    for i in range(134,165):
+	    ang += (2.0*np.pi)/30
+	    vertices['position'][i] = [0.4*np.cos(ang)*radius+ax_move,0.4*np.sin(ang)*radius+ay_move]
+    
+    
+#Vértices para a Árvore
+#Entrada: Vetor de vértices
+def drawTree(vertices):
+    vertices['position'][165] = [0.0,0.0]
+    #Copa
+    vertices['position'][166] = [0.4,0.0]
+    vertices['position'][167] = [0.0,0.7]
+    vertices['position'][168] = [-0.4,0.0]
+    #Folhas 1
+    vertices['position'][169] = [0.6,0.2]
+    vertices['position'][170] = [0.0,0.7]
+    vertices['position'][171] = [-0.6,0.2]
+    #Folhas 2
+    vertices['position'][172] = [0.3,0.6]
+    vertices['position'][173] = [0.0,0.8]
+    vertices['position'][174] = [-0.3,0.6]
+    
 def main():
     global angle, angle2
     glfw.init()
@@ -167,13 +231,15 @@ def main():
     # Make program the default program
     glUseProgram(program)
 
-    # preparando espaço para 3 vértices usando 2 coordenadas (x,y)
-    vertices = np.zeros(79, [("position", np.float32, 2)])
+    # Prepare 3 coordinates for 2 slot vector
+    vertices = np.zeros(250, [("position", np.float32, 2)])
 
-    drawFirstObject(vertices)   #Estrela
-    drawSecondObject(vertices)  #Flor
-    drawThirdObject(vertices)   #Passáro
-
+    drawStar(vertices)      #Star
+    drawFlower1(vertices)   #Flower 1
+    drawFlower2(vertices)   #Flower 2
+    drawMan(vertices)       #Man
+    drawTree(vertices)      #Tree
+    
 
     # Request a buffer slot from GPU
     buffer = glGenBuffers(1)
@@ -185,7 +251,6 @@ def main():
     glBindBuffer(GL_ARRAY_BUFFER, buffer)
 
     # Bind the position attribute
-    # --------------------------------------
     stride = vertices.strides[0]
     offset = ctypes.c_void_p(0)
 
@@ -214,14 +279,14 @@ def main():
 
         
         glClear(GL_COLOR_BUFFER_BIT) 
-        glClearColor(0.0, 0.0, 0.0, 1.0)
+        glClearColor(0.0, 0.0, 1.0, 1.0)
 
         loc = glGetUniformLocation(program, "mat_transformation");
 
         mat_aux = np.zeros(16)
         mat_final = np.zeros(16)
 
-        #### PRIMEIRO OBJETO
+        #### STAR ####
         t_x = x
         t_y = mult * 0.1 * np.sin(4*x) # Faz o caminho da senoide
         
@@ -232,7 +297,7 @@ def main():
             
         x += step
 
-        # MATRIZ DE ESCALA
+        # Matrix: Scale
         mat_scale = np.array([
             s   , 0.0, 0.0, 0.0,
             0.0,    s, 0.0, 0.0,
@@ -240,7 +305,7 @@ def main():
             0.0, 0.0, 0.0, 1.0
         ])
         
-        # MATRIZ DE ROTAÇÃO
+        # Matrix: Rotation
         mat_rotation = np.array([
             np.cos(angle), -np.sin(angle), 0.0, 0.0,
             np.sin(angle),  np.cos(angle), 0.0, 0.0,
@@ -248,31 +313,31 @@ def main():
             0.0      ,  0.0      , 0.0, 1.0
         ])
 
-        # MATRIZ DE TRANSLAÇÃO
+        # Matrix: Translation
         mat_translation = np.array([
             1.0, 0.0, 0.0, t_x ,
-            0.0, 1.0, 0.0, t_y + 0.5,
+            0.0, 1.0, 0.0, t_y + 0.7,
             0.0, 0.0, 1.0, 0.0,
             0.0, 0.0, 0.0, 1.0
         ])
 
-        # Multiplica as matrizes
+        # Multiplex Matrix
         mat_aux = multiplica_matriz(mat_rotation, mat_scale)
         mat_final = multiplica_matriz(mat_translation, mat_aux)
 
-        # Para deixar a estrela girando
+        # Continuos star rotation
         angle -= 0.005
 
-        #Enviando a matriz de transformação para essa figura
+        #Send transformation matrix
         glUniformMatrix4fv(loc, 1, GL_TRUE, mat_final)
 
-	    #Renderizando a cor
+	    #Color Render
         glUniform4f(loc_color, 254.0/255.0, 254.0/255.0, 68.0/255.0, 1.0)
         glDrawArrays(GL_TRIANGLE_FAN, 0, 18)
 
-        ####### SEGUNDO OBJETO
+        #### FLOWER 1 ####
         
-        # Alterando a matriz de translação para o segundo objeto
+        # Alterando a matriz de translação para a flor 1
         mat_translation[3] = -0.6
         mat_translation[7] = -0.55
 
@@ -280,9 +345,9 @@ def main():
 
         # Cabo da flor
         glUniform4f(loc_color, 0.0, 128.0/255.0, 0.0/255.0, 1.0) # Cor verde
-        glDrawArrays(GL_TRIANGLE_STRIP, 66, 4)
+        glDrawArrays(GL_LINE_STRIP, 66, 4)
 
-        # Alterando as matrizes de rotação e escala para o segundo objeto
+        # Alterando as matrizes de rotação e escala para a flor 1
         mat_scale[0] = 1.0
         mat_scale[5] = 1.0
 
@@ -297,29 +362,99 @@ def main():
         # enviando a matriz de transformacao para a GPU, vertex shader, variavel mat_transformation
         glUniformMatrix4fv(loc, 1, GL_TRUE, mat_final)
     
-        # Cor roxa das pétalas
-        glUniform4f(loc_color, 150.0/255.0, 0.0, 205.0/255.0, 1.0)
+        glUniform4f(loc_color, 150.0/255.0, 0.0, 205.0/255.0, 1.0)# Cor roxa
         
+        #Pétalas
         for j in range(0,12):
             glDrawArrays(GL_TRIANGLE_FAN, 18 + 4*j, 4)
 
-        #### TERCEIRO OBJETO
+        #### FLOWER 2 ####
 
-        # Alterando a matriz de translação para o terceiro objeto
+        # Alterando a matriz de translação para a flor 2
+        mat_translation[3] = 0.6
+        mat_translation[7] = -0.65
+
+        glUniformMatrix4fv(loc, 1, GL_TRUE, mat_translation)
+
+        # Cabo da flor
+        glUniform4f(loc_color, 0.0, 128.0/255.0, 0.0/255.0, 1.0) # Cor verde
+        glDrawArrays(GL_LINE_STRIP, 118, 4)
+
+        # Alterando as matrizes de rotação e escala para a flor 2
+        mat_scale[0] = 1.5
+        mat_scale[5] = 1.5
+
+        mat_rotation[0] =  np.cos(-angle2)
+        mat_rotation[1] =  -np.sin(-angle2)
+        mat_rotation[4] =  np.sin(-angle2)
+        mat_rotation[5] =  np.cos(-angle2)        
+        
+        mat_aux = multiplica_matriz(mat_rotation, mat_scale)
+        mat_final = multiplica_matriz(mat_translation, mat_aux)
+
+        # enviando a matriz de transformacao para a GPU, vertex shader, variavel mat_transformation
+        glUniformMatrix4fv(loc, 1, GL_TRUE, mat_final)
+    
+        glUniform4f(loc_color, 1.0, 0.0, 0.0, 1.0)# Cor Vermelha
+        
+        for j in range(0,12):
+            glDrawArrays(GL_TRIANGLE_FAN, 70 + 4*j, 4)                
+
+        #### ARVORE  #####
+
+        # Alterando a matriz de translação para a árvore
+        mat_translation[3] = 0.5
+        mat_translation[7] = -0.3  
+        mat_scale[0] =  0.5
+        mat_scale[5] =  0.85    
+
+        mat_final = multiplica_matriz(mat_translation, mat_scale)
+
+        glUniformMatrix4fv(loc, 1, GL_TRUE, mat_final)
+
+	    #renderizando
+        glUniform4f(loc_color,139/255,69/255,19/255, 1.0) #Cor Marrom
+        glDrawArrays(GL_TRIANGLE_FAN, 166, 3)
+        glUniform4f(loc_color, 46/255,139/255,87/255, 1.0) #Cor Verde
+        glDrawArrays(GL_TRIANGLE_FAN, 169, 3)
+        glDrawArrays(GL_TRIANGLE_FAN, 172, 3)
+
+
+        # Alterando a matriz de translação para a árvore
+        mat_translation[3] = -0.6
+        mat_translation[7] = -0.2  
+        mat_scale[0] =  0.5
+        mat_scale[5] =  0.85    
+
+        mat_final = multiplica_matriz(mat_translation, mat_scale)
+
+        glUniformMatrix4fv(loc, 1, GL_TRUE, mat_final)
+
+	    #renderizando
+        glUniform4f(loc_color,139/255,69/255,19/255, 1.0) #Cor Marrom
+        glDrawArrays(GL_TRIANGLE_FAN, 166, 3)
+        glUniform4f(loc_color, 46/255,139/255,87/255, 1.0) #Cor Verde
+        glDrawArrays(GL_TRIANGLE_FAN, 169, 3)
+        glDrawArrays(GL_TRIANGLE_FAN, 172, 3)
+
+        #### Homem ####
+
+        # Alterando a matriz de translação para o homem
         mat_translation[3] = p_x
         mat_translation[7] = p_y        
 
         glUniformMatrix4fv(loc, 1, GL_TRUE, mat_translation)
 
 	    #renderizando
-        glUniform4f(loc_color, 107.0/255.0, 142.0/255.0, 35.0/255.0, 1.0)
-        glDrawArrays(GL_TRIANGLE_FAN, 70, 4)
-        glDrawArrays(GL_TRIANGLE_STRIP, 74, 5)
+        glUniform4f(loc_color, 0, 0, 0, 1.0) #Cor Preta
+        glLineWidth(4.0)
+        glDrawArrays(GL_LINE_STRIP, 122, 10)
+        glDrawArrays(GL_TRIANGLE_FAN, 134, 31)        
 
         glfw.swap_buffers(window)
 
     glfw.terminate()
 
-
+#Função MAIN
 if __name__ == "__main__":
   main()
