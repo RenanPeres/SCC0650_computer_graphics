@@ -9,7 +9,7 @@ import OpenGL.GL.shaders
 import numpy as np
 import math
 
-#Blobal
+#Global
 scale = 0.01
 TAM = 0.1
 TAM3 = 0.05
