@@ -1,7 +1,7 @@
 # Trabaho Prático 1
 #
-# André Baconcelo Prado Furlanetti - N°USP
-# Renan Peres Martins - N°USP: 10716612
+# André Baconcelo Prado Furlanetti      - N°USP: 10748305
+# Renan Peres Martins                   - N°USP: 10716612
 
 import glfw
 from OpenGL.GL import *
@@ -9,7 +9,7 @@ import OpenGL.GL.shaders
 import numpy as np
 import math
 
-#Variáveis Globais
+#Blobal
 scale = 0.01
 TAM = 0.1
 TAM3 = 0.05
@@ -21,7 +21,7 @@ s =  1.0
 angle = 0.0
 angle2 = 0.0
 
-#Função que multiplica duas matrizes
+#Multiply Matrix
 def multiplica_matriz(a,b):
     m_a = a.reshape(4,4)
     m_b = b.reshape(4,4)
